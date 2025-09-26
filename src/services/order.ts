@@ -1,4 +1,5 @@
-export const createNewOrderService = order => {
+import { Order } from "../models";
+export const createNewOrderService = (order: Order) => {
   console.log(order);
 };
 

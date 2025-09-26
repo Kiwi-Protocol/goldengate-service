@@ -4,6 +4,7 @@ import {
   getPendingOrdersService,
   getOrderService,
 } from "../services";
+import { Order } from "../models";
 
 export const createNewOrderController = (req: Request) => {
   const {
@@ -15,7 +16,7 @@ export const createNewOrderController = (req: Request) => {
     toToken,
     toAmount,
     toAddress,
-  } = req.body;
+  }: Order = req.body;
 
   if (
     !fromChain ||
@@ -32,7 +33,7 @@ export const createNewOrderController = (req: Request) => {
       data: "Missing information. Required fields: fromChain, fromToken, fromAmount,  fromAddress,  toChain, toToken, toAmount, toAddress",
     };
   }
-  const order = {
+  const order: Order = {
     fromChain,
     fromToken,
     fromAmount,
