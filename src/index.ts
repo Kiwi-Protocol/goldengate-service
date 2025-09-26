@@ -1,6 +1,6 @@
 import express from "express";
 import cors from "cors";
-import { orderRouter } from "./routes";
+import { orderRouter, resolveOrderRouter } from "./routes";
 
 const app = express();
 const PORT = 8008;
@@ -13,6 +13,7 @@ app.get("/", (req, res) => {
 });
 
 app.use("/order", orderRouter);
+app.use("/resolve", resolveOrderRouter);
 
 app.listen(PORT, () => {
   console.log(`Listening at ${PORT}`);

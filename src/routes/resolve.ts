@@ -2,6 +2,6 @@ import { makeCallback } from "../utils";
 import { resolveOrderController } from "../controllers";
 
 import express from "express";
-export const orderRouter = express.Router();
+export const resolveOrderRouter = express.Router();
 
-orderRouter.post("/", makeCallback(resolveOrderController));
+resolveOrderRouter.post("/", makeCallback(resolveOrderController));
