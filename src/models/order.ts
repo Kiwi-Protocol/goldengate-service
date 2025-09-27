@@ -5,8 +5,8 @@ export type Order = {
   created_at: string;
   signature: string;
   chain_id: number;
-  amount_0: number;
-  amount_1: number;
+  amount_0: string;
+  amount_1: string;
   batch_size: number | undefined;
   interval: number | undefined;
   max_interval: number | undefined;

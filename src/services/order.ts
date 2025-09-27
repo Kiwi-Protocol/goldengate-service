@@ -1,7 +1,7 @@
 import { Address } from "viem";
 
 import { Result, Order, Execution } from "../models";
-import { useOrderDbClient } from "../utils";
+import { useExecutionDbClient, useOrderDbClient } from "../utils";
 
 export const createNewOrderService = async (
   order: Order,
@@ -26,21 +26,33 @@ export const getAllOrdersService = async (
   address: Address | string,
   is_open: boolean,
 ): Promise<Result<Order[] | string>> => {
-  const matchQuery = {};
-  if (chain_id) {
-    matchQuery["chain_id"] = chain_id;
-  }
-
-  matchQuery["address"] = address;
-
-  if (is_open) {
-    matchQuery["status"] = "NEW";
-  }
   try {
-    const response = await useOrderDbClient.getAll(matchQuery);
-    return response;
+    const matchQuery = {
+      chain_id: chain_id,
+      address: address,
+    };
+
+    if (is_open) {
+      matchQuery["status"] = "NEW";
+    }
+    try {
+      const response = await useOrderDbClient.getAll(matchQuery);
+      const numResp = response.data.length;
+      for (let i = 0; i < numResp; i++) {
+        const executions = await useExecutionDbClient.findByOrderId(
+          response.data[i].id,
+        );
+        response.data[i]["executions"] = executions;
+      }
+      return response;
+    } catch (e: any) {
+      return { status: 400, data: e.message as string };
+    }
   } catch (e: any) {
-    return { status: 400, data: e.message as string };
+    return {
+      status: 400,
+      data: e.message,
+    };
   }
 };
 

@@ -6,48 +6,56 @@ import {
 } from "../services";
 import { Order } from "../models";
 
-export const createNewOrderController = (req: Request) => {
+export const createNewOrderController = async (req: Request) => {
   const order: Order = req.body;
-  return createNewOrderService(order);
+  return await createNewOrderService(order);
 };
 
-export const getAllOrdersController = (req: Request) => {
-  const { passed_chain_id, address, passed_is_open } = req.query;
-  let chain_id = -1;
-  if (!passed_chain_id) {
-    const parsedChainId = parseInt(passed_chain_id as string, 10);
-    if (!Number.isInteger(parsedChainId)) {
+export const getAllOrdersController = async (req: Request) => {
+  const { chain_id, address, is_open } = req.params;
+  console.log(chain_id, address, is_open);
+  let passed_is_open = is_open;
+  try {
+    if (!chain_id || !Number.isInteger(+chain_id)) {
       return {
         status: 400,
-        data: "chain_id is not integer.",
+        data: "chain_id cannot be null",
       };
     }
-    chain_id = parsedChainId;
-  } else {
+    console.log("Chain");
+    if (!address) {
+      return {
+        status: 400,
+        data: "address cannot be null.",
+      };
+    }
+  } catch (e: any) {
     return {
       status: 400,
-      data: "chain_id cannot be null.",
+      data: e.message,
     };
   }
-  if (!address) {
-    return {
-      status: 400,
-      data: "address cannot be null.",
-    };
-  }
-  let is_open = false;
+  console.log("ADD");
+  let finally_is_open = false;
   if (passed_is_open) {
-    is_open = passed_is_open === "true";
+    finally_is_open = passed_is_open === "true";
   }
-  return getAllOrdersService(chain_id, address as string, is_open);
+  console.log("OPEN");
+  return await getAllOrdersService(
+    // @ts-ignore
+    Number.parseInt(chain_id),
+    address as string,
+    finally_is_open,
+  );
 };
 
-export const getOrderController = (id: string) => {
+export const getOrderController = async (req: Request) => {
+  const { id } = req.params;
   if (!id) {
     return {
       status: 400,
       data: "order id cannot be null / undefined.",
     };
   }
-  return getOrderService(id);
+  return await getOrderService(id);
 };

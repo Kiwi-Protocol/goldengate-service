@@ -3,6 +3,7 @@ import { Order, Execution, Result } from "../models";
 import { BigNumber as BN } from "bignumber.js";
 const SUPABASE_URL = process.env.SUPABASE_URL ?? "";
 const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY ?? "";
+const BATCH_SIZE = process.env.BATCH_SIZE ?? "";
 
 export const createDbClient = () => {
   return createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
@@ -21,7 +22,7 @@ const useExecutionDb = (getDbClient: Function) => {
       let totalAmount0 = BN(0);
       let totalTime = 0;
       while (totalAmount0.isLessThan(BN(order.amount_0))) {
-        let randomTime = 0; // TODO: sometime between order.interval and order.max_interval
+        let randomTime = Math.ceil(Math.random() * 10); // TODO: sometime between order.interval and order.max_interval
         totalTime += randomTime;
 
         // these are the execution amounts
@@ -33,13 +34,15 @@ const useExecutionDb = (getDbClient: Function) => {
         if (order.batch_size) {
           batch_size = BN(order.batch_size);
         } else {
-          batch_size = BN(0); // TODO: random batch_size
+          batch_size = BN(Math.ceil(Math.random() * +BATCH_SIZE)); // TODO: random batch_size
         }
 
         amount_0 = BN.min(batch_size, BN(order.amount_0).minus(totalAmount0));
         amount_1 = BN(order.amount_1)
           .multipliedBy(amount_0)
           .dividedBy(BN(order.amount_0));
+
+        totalAmount0 = totalAmount0.plus(amount_0);
 
         const start_time = new Date(order.created_at);
         start_time.setMinutes(start_time.getMinutes() + totalTime);
@@ -52,8 +55,8 @@ const useExecutionDb = (getDbClient: Function) => {
           currency_1: order.currency_1,
           signature: order.signature,
           status: "PENDING",
-          id: null,
-          start_time: start_time.toString(), // TODO: update time
+          // @ts-ignore
+          start_time: start_time, // TODO: update time
           amount_0: amount_0.toString(),
           amount_1: amount_1.toString(),
         };
@@ -62,6 +65,7 @@ const useExecutionDb = (getDbClient: Function) => {
           .from("Execution")
           .insert(execution)
           .select();
+        console.log(response);
       }
       return {
         status: 201,
@@ -77,7 +81,7 @@ const useExecutionDb = (getDbClient: Function) => {
       const currentTime = new Date().toString();
 
       const query = clientInstance
-        .from("Executions")
+        .from("Execution")
         .select()
         .match({
           status: "PENDING",
@@ -93,9 +97,27 @@ const useExecutionDb = (getDbClient: Function) => {
     }
   }
 
+  async function findByOrderId(order_id: string): Promise<Result<Order[]>> {
+    try {
+      const clientInstance = await getDbClient();
+
+      const response = await clientInstance
+        .from("Execution")
+        .select()
+        .match({ order_id: order_id });
+      if (response.error) {
+        return { status: response.status, data: response.error.message };
+      }
+      return response;
+    } catch (e: any) {
+      return { status: 400, data: e.message };
+    }
+  }
+
   return Object.freeze({
     insertExecution,
     getOpenExecutions,
+    findByOrderId,
   });
 };
 
@@ -103,7 +125,6 @@ const useOrderDb = (getDbClient: Function) => {
   async function getAll(matchQuery: object): Promise<Result<Order[]>> {
     try {
       const clientInstance = await getDbClient();
-
       const query = clientInstance.from("Order").select();
       if (matchQuery != null) {
         query.match(matchQuery);
@@ -148,7 +169,9 @@ const useOrderDb = (getDbClient: Function) => {
       if (response.error) {
         return { status: response.status, data: response.error.message };
       }
-      const execResponse = await useExecutionDbClient.insertExecution(order);
+      const execResponse = await useExecutionDbClient.insertExecution(
+        response.data[0],
+      );
       if (execResponse.status != 201) {
         return execResponse;
       }
