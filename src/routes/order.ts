@@ -2,7 +2,7 @@ import { makeCallback } from "../utils";
 import {
   createNewOrderController,
   getOrderController,
-  getPendingOrdersController,
+  getAllOrdersController,
 } from "../controllers";
 
 import express from "express";

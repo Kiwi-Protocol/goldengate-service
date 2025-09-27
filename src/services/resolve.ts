@@ -1,4 +1,4 @@
-import { useExecutionDbClient } from "utils";
+import { useExecutionDbClient } from "../utils";
 
 export const resolveOrderService = async () => {
   const response = await useExecutionDbClient.getOpenExecutions();

@@ -1,7 +1,7 @@
 import { Address } from "viem";
 
 import { Result, Order, Execution } from "../models";
-import { useOrderDbClient } from "utils";
+import { useOrderDbClient } from "../utils";
 
 export const createNewOrderService = async (
   order: Order,
