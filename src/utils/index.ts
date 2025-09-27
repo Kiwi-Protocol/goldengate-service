@@ -1,6 +1,8 @@
 import { Request, Response } from "express";
 import { Result } from "../models";
 
+export * from "./db";
+
 export const makeCallback = (controller: Function) => {
   return (req: Request, res: Response) => {
     try {

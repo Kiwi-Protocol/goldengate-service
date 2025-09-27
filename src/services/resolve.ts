@@ -1,3 +1,9 @@
-export const resolveOrderService = (id: string) => {
-  console.log(id);
+export const resolveOrderService = () => {
+  // READ orders table
+  // check what rows need to be processed now
+
+  return {
+    status: 200,
+    data: "Resolved orders.",
+  };
 };

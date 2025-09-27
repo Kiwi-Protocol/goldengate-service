@@ -11,12 +11,16 @@ export const createDbClient = () => {
   });
 };
 
-export const useBlockDb = (getDbClient: Function) => {
-  async function getPending(): Promise<Result<Order[]>> {
+const useOrderDb = (getDbClient: Function) => {
+  async function getPending(matchQuery: object): Promise<Result<Order[]>> {
     try {
       const clientInstance = await getDbClient();
 
-      const response = await clientInstance.from("Order").select();
+      const query = clientInstance.from("Order").select();
+      if (matchQuery != null) {
+        query.match(matchQuery);
+      }
+      const response = await query;
       if (response.error) {
         return { status: response.status, data: response.error.message };
       }
@@ -46,6 +50,7 @@ export const useBlockDb = (getDbClient: Function) => {
   async function insertOrder(order: Order): Promise<Result<Order[]>> {
     try {
       const clientInstance = await getDbClient();
+      order.status = "NEW";
       const response = await clientInstance
         .from("Order")
         .insert(order)
@@ -65,3 +70,5 @@ export const useBlockDb = (getDbClient: Function) => {
     insertOrder,
   });
 };
+
+export const useOrderDbClient = useOrderDb(createDbClient);

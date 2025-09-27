@@ -1,10 +1,14 @@
+import { Address } from "viem";
+
 export type Order = {
-  fromChain: string;
-  fromToken: string;
-  fromAmount: string;
-  fromAddress: string;
-  toChain: string;
-  toToken: string;
-  toAmount: string;
-  toAddress: string;
+  id: string;
+  chainId: number;
+  amount: number;
+  limit_price: number | undefined;
+  batch_size: number | undefined;
+  interval: number | undefined;
+  address: Address;
+  currency_0: Address;
+  currency_1: Address;
+  status: string;
 };

@@ -10,4 +10,7 @@ export const orderRouter = express.Router();
 
 orderRouter.post("/", makeCallback(createNewOrderController));
 orderRouter.get("/:id", makeCallback(getOrderController));
-orderRouter.get("/pending", makeCallback(getPendingOrdersController));
+orderRouter.get(
+  "/user/:chain_id/:address/:is_open",
+  makeCallback(getPendingOrdersController),
+);
