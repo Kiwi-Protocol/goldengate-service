@@ -1,5 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
-import { Order, Result } from "../models";
+import { Order, Execution, Result } from "../models";
 const SUPABASE_URL = process.env.SUPABASE_URL ?? "";
 const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY ?? "";
 
@@ -8,6 +8,30 @@ export const createDbClient = () => {
     auth: {
       persistSession: false,
     },
+  });
+};
+
+const useExecutionDb = (getDbClient: Function) => {
+  async function insertExecution(order: Order): Promise<Result<Order[]>> {
+    try {
+      const clientInstance = await getDbClient();
+      const execution: Execution = {};
+      execution.status = "PENDING";
+      const response = await clientInstance
+        .from("Execution")
+        .insert(execution)
+        .select();
+      if (response.error) {
+        return { status: response.status, data: response.error.message };
+      }
+      return response;
+    } catch (e: any) {
+      return { status: 400, data: e.message };
+    }
+  }
+
+  return Object.freeze({
+    insertExecution,
   });
 };
 

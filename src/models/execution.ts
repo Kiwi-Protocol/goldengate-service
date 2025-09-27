@@ -1,14 +1,15 @@
 import { Address } from "viem";
 
-export type Order = {
-  id: string;
+export type Execution = {
+  id: number;
+  order_id: string;
   chainId: number;
   amount_0: number;
   amount_1: number | undefined;
-  batch_size: number | undefined;
-  interval: number | undefined;
+  start_time: string;
   address: Address;
   currency_0: Address;
   currency_1: Address;
+  signature: string;
   status: string;
 };

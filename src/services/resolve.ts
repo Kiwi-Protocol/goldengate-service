@@ -1,5 +1,5 @@
 export const resolveOrderService = () => {
-  // READ orders table
+  // READ executions table
   // check what rows need to be processed now
 
   return {
