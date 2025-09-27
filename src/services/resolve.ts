@@ -13,8 +13,14 @@ import { Execution } from "../models";
 
 const privKey = process.env.PRIVATE_KEY ?? "";
 const maker = new Wallet(privKey);
+const expiresIn = 120n; // 2 minutes
+const expiration = BigInt(Math.floor(Date.now() / 1000)) + expiresIn;
+const UINT_40_MAX = (1n << 48n) - 1n;
 
-const makerTraits = MakerTraits.default();
+const makerTraits = MakerTraits.default()
+  .allowMultipleFills()
+  .allowPartialFills()
+  .withExpiration(expiration);
 
 export const resolveOrderService = async () => {
   const response = await useExecutionDbClient.getOpenExecutions();
@@ -25,11 +31,11 @@ export const resolveOrderService = async () => {
   for (let idx = 0; idx < numExecToExecute; idx++) {
     const execution = response.data[idx];
     // @ts-ignore
-    await placeOrderForExecution(execution);
+    console.log(await placeOrderForExecution(execution));
   }
   return {
     status: 200,
-    data: "Resolved orders.",
+    data: "Placed orders for execution.",
   };
 };
 
@@ -46,7 +52,7 @@ const placeOrderForExecution = async (execution: Execution) => {
       takerAsset: new Address(execution.currency_1),
       makingAmount: BigInt(execution.amount_0),
       takingAmount: BigInt(execution.amount_1),
-      maker: new Address(execution.address),
+      maker: new Address(maker.address),
     },
     makerTraits,
   );
@@ -58,5 +64,5 @@ const placeOrderForExecution = async (execution: Execution) => {
     typedData.message,
   );
 
-  await sdk.submitOrder(order, signature);
+  return await sdk.submitOrder(order, signature);
 };

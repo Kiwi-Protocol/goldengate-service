@@ -52,6 +52,7 @@ const useExecutionDb = (getDbClient: Function) => {
         const start_time = new Date(order.created_at);
         start_time.setMinutes(start_time.getMinutes() + totalTime);
 
+        // @ts-ignore
         const execution: Execution = {
           order_id: order.id,
           chain_id: order.chain_id,
@@ -61,7 +62,7 @@ const useExecutionDb = (getDbClient: Function) => {
           signature: order.signature,
           status: "PENDING",
           // @ts-ignore
-          start_time: start_time,
+          start_time: start_time.toISOString(),
           amount_0: amount_0.toString(),
           amount_1: amount_1.toString(),
         };
@@ -83,7 +84,7 @@ const useExecutionDb = (getDbClient: Function) => {
   async function getOpenExecutions(): Promise<Result<Order[]>> {
     try {
       const clientInstance = await getDbClient();
-      const currentTime = new Date().toString();
+      const currentTime = new Date().toISOString();
 
       const query = clientInstance
         .from("Execution")
