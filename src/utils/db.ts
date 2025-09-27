@@ -119,11 +119,30 @@ const useExecutionDb = (getDbClient: Function) => {
       return { status: 400, data: e.message };
     }
   }
+  async function updateExecutionToOngoing(
+    id: string,
+  ): Promise<Result<Order[]>> {
+    try {
+      const clientInstance = await getDbClient();
+
+      const response = await clientInstance
+        .from("Execution")
+        .update({ status: "ONGOING" })
+        .eq("id", id);
+      if (response.error) {
+        return { status: response.status, data: response.error.message };
+      }
+      return response;
+    } catch (e: any) {
+      return { status: 400, data: e.message };
+    }
+  }
 
   return Object.freeze({
     insertExecution,
     getOpenExecutions,
     findByOrderId,
+    updateExecutionToOngoing,
   });
 };
 

@@ -32,6 +32,7 @@ export const resolveOrderService = async () => {
     const execution = response.data[idx];
     // @ts-ignore
     console.log(await placeOrderForExecution(execution));
+    useExecutionDbClient.updateExecutionToOngoing(response.data[idx].id);
   }
   return {
     status: 200,
