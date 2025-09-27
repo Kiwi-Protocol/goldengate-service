@@ -7,10 +7,10 @@
   resolved "https://registry.npmjs.org/@1inch/byte-utils/-/byte-utils-3.0.0.tgz"
   integrity sha512-CuX4E0z/pzo9hKGzFsMi3vPVgHRRh14ZwNEZ5TY1svnKF8PjxWx3t0CjXCW4dyqKGe6TKAzgYqzzxrMrWPDy5Q==
 
-"@1inch/limit-order-sdk@^4.9.2":
-  version "4.13.0"
-  resolved "https://registry.npmjs.org/@1inch/limit-order-sdk/-/limit-order-sdk-4.13.0.tgz"
-  integrity sha512-n+8EG1aY5wSHkiGv3rqJ/0YQPVqiIu6EPgiOrjnx0+82oydmoEJXaj/tGmFUAuxTJkfYGdzbL/d4vzVGWSXP+Q==
+"@1inch/limit-order-sdk@^5.2.0":
+  version "5.2.0"
+  resolved "https://registry.yarnpkg.com/@1inch/limit-order-sdk/-/limit-order-sdk-5.2.0.tgz#51da06f94d283e08b3709b0624f6e97d96bd5149"
+  integrity sha512-cYJcIZSbWdRjSYwxJujSYCylnATIEm4ksUxqsntmmONBf0Mi4R+Eo6c0EztctISvEIpWAYDl38MvjkdQpkf3UA==
   dependencies:
     "@1inch/byte-utils" "3.0.0"
     ethers "6.13.5"
