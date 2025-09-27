@@ -5,7 +5,7 @@ export type Execution = {
   order_id: string;
   chain_id: number;
   amount_0: string;
-  amount_1: string | undefined;
+  amount_1: string;
   start_time: string;
   address: Address;
   currency_0: Address;
