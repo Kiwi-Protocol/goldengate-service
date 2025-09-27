@@ -22,7 +22,6 @@ export const getAllOrdersController = async (req: Request) => {
         data: "chain_id cannot be null",
       };
     }
-    console.log("Chain");
     if (!address) {
       return {
         status: 400,
@@ -35,12 +34,10 @@ export const getAllOrdersController = async (req: Request) => {
       data: e.message,
     };
   }
-  console.log("ADD");
   let finally_is_open = false;
   if (passed_is_open) {
     finally_is_open = passed_is_open === "true";
   }
-  console.log("OPEN");
   return await getAllOrdersService(
     // @ts-ignore
     Number.parseInt(chain_id),
