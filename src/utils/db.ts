@@ -1,0 +1,67 @@
+import { createClient } from "@supabase/supabase-js";
+import { Order, Result } from "../models";
+const SUPABASE_URL = process.env.SUPABASE_URL ?? "";
+const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY ?? "";
+
+export const createDbClient = () => {
+  return createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+    auth: {
+      persistSession: false,
+    },
+  });
+};
+
+export const useBlockDb = (getDbClient: Function) => {
+  async function getPending(): Promise<Result<Order[]>> {
+    try {
+      const clientInstance = await getDbClient();
+
+      const response = await clientInstance.from("Order").select();
+      if (response.error) {
+        return { status: response.status, data: response.error.message };
+      }
+      return response;
+    } catch (e: any) {
+      return { status: 400, data: e.message };
+    }
+  }
+
+  async function findById(id: string): Promise<Result<Order[]>> {
+    try {
+      const clientInstance = await getDbClient();
+
+      const response = await clientInstance
+        .from("Order")
+        .select()
+        .match({ id: id });
+      if (response.error) {
+        return { status: response.status, data: response.error.message };
+      }
+      return response;
+    } catch (e: any) {
+      return { status: 400, data: e.message };
+    }
+  }
+
+  async function insertOrder(order: Order): Promise<Result<Order[]>> {
+    try {
+      const clientInstance = await getDbClient();
+      const response = await clientInstance
+        .from("Order")
+        .insert(order)
+        .select();
+      if (response.error) {
+        return { status: response.status, data: response.error.message };
+      }
+      return response;
+    } catch (e: any) {
+      return { status: 400, data: e.message };
+    }
+  }
+
+  return Object.freeze({
+    getPending,
+    findById,
+    insertOrder,
+  });
+};
