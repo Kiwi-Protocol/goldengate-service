@@ -41,6 +41,9 @@ const useExecutionDb = (getDbClient: Function) => {
           .multipliedBy(amount_0)
           .dividedBy(BN(order.amount_0));
 
+        const start_time = new Date(order.created_at);
+        start_time.setMinutes(start_time.getMinutes() + totalTime);
+
         const execution: Execution = {
           order_id: order.id,
           chain_id: order.chain_id,
@@ -50,7 +53,7 @@ const useExecutionDb = (getDbClient: Function) => {
           signature: order.signature,
           status: "PENDING",
           id: null,
-          start_time: order.created_at + totalTime, // TODO: update time
+          start_time: start_time.toString(), // TODO: update time
           amount_0: amount_0.toString(),
           amount_1: amount_1.toString(),
         };
@@ -68,9 +71,31 @@ const useExecutionDb = (getDbClient: Function) => {
       return { status: 400, data: e.message };
     }
   }
+  async function getOpenExecutions(): Promise<Result<Order[]>> {
+    try {
+      const clientInstance = await getDbClient();
+      const currentTime = new Date().toString();
+
+      const query = clientInstance
+        .from("Executions")
+        .select()
+        .match({
+          status: "PENDING",
+        })
+        .lt("start_time", currentTime);
+      const response = await query;
+      if (response.error) {
+        return { status: response.status, data: response.error.message };
+      }
+      return response;
+    } catch (e: any) {
+      return { status: 400, data: e.message };
+    }
+  }
 
   return Object.freeze({
     insertExecution,
+    getOpenExecutions,
   });
 };
 
