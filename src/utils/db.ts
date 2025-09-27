@@ -22,8 +22,13 @@ const useExecutionDb = (getDbClient: Function) => {
       let totalAmount0 = BN(0);
       let totalTime = 0;
       while (totalAmount0.isLessThan(BN(order.amount_0))) {
-        let randomTime = Math.ceil(Math.random() * 10); // TODO: sometime between order.interval and order.max_interval
-        totalTime += randomTime;
+        let time_diff = Math.random() * 10;
+        if (order.max_interval && order.interval) {
+          time_diff =
+            Math.random() * (+order.max_interval - +order.interval + 1) +
+            order.interval;
+        }
+        totalTime += time_diff;
 
         // these are the execution amounts
         let amount_0 = BN(0);
@@ -34,7 +39,7 @@ const useExecutionDb = (getDbClient: Function) => {
         if (order.batch_size) {
           batch_size = BN(order.batch_size);
         } else {
-          batch_size = BN(Math.ceil(Math.random() * +BATCH_SIZE)); // TODO: random batch_size
+          batch_size = BN(Math.ceil(Math.random() * +BATCH_SIZE));
         }
 
         amount_0 = BN.min(batch_size, BN(order.amount_0).minus(totalAmount0));
@@ -56,7 +61,7 @@ const useExecutionDb = (getDbClient: Function) => {
           signature: order.signature,
           status: "PENDING",
           // @ts-ignore
-          start_time: start_time, // TODO: update time
+          start_time: start_time,
           amount_0: amount_0.toString(),
           amount_1: amount_1.toString(),
         };

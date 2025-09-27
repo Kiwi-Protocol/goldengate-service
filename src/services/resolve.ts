@@ -5,8 +5,11 @@ export const resolveOrderService = async () => {
   if (response.status != 200) {
     return response;
   }
-  // loop over executions in response and make 1inch call
-
+  const numExecToExecute = response.data.length;
+  for (let idx = 0; idx < numExecToExecute; idx++) {
+    const execution = response.data[idx];
+    // TODO: send execution to 1inch API
+  }
   return {
     status: 200,
     data: "Resolved orders.",
