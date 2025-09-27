@@ -1,16 +1,17 @@
 import { Address } from "viem";
 
-import { Result, Order } from "../models";
+import { Result, Order, Execution } from "../models";
 import { useOrderDbClient } from "utils";
 
 export const createNewOrderService = async (
   order: Order,
-): Promise<Result<Order[] | string>> => {
+): Promise<Result<Order[] | Execution[] | string>> => {
   try {
     const response = await useOrderDbClient.insertOrder(order);
     if (response.status !== 201) {
       return response;
     }
+
     return { status: 201, data: "Order booked." };
   } catch (e: any) {
     return {
@@ -20,7 +21,7 @@ export const createNewOrderService = async (
   }
 };
 
-export const getPendingOrdersService = async (
+export const getAllOrdersService = async (
   chain_id: number,
   address: Address | string,
   is_open: boolean,
@@ -36,7 +37,7 @@ export const getPendingOrdersService = async (
     matchQuery["status"] = "NEW";
   }
   try {
-    const response = await useOrderDbClient.getPending(matchQuery);
+    const response = await useOrderDbClient.getAll(matchQuery);
     return response;
   } catch (e: any) {
     return { status: 400, data: e.message as string };

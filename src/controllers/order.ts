@@ -1,7 +1,7 @@
 import { Request } from "express";
 import {
   createNewOrderService,
-  getPendingOrdersService,
+  getAllOrdersService,
   getOrderService,
 } from "../services";
 import { Order } from "../models";
@@ -11,7 +11,7 @@ export const createNewOrderController = (req: Request) => {
   return createNewOrderService(order);
 };
 
-export const getPendingOrdersController = (req: Request) => {
+export const getAllOrdersController = (req: Request) => {
   const { passed_chain_id, address, passed_is_open } = req.query;
   let chain_id = -1;
   if (!passed_chain_id) {
@@ -39,7 +39,7 @@ export const getPendingOrdersController = (req: Request) => {
   if (passed_is_open) {
     is_open = passed_is_open === "true";
   }
-  return getPendingOrdersService(chain_id, address as string, is_open);
+  return getAllOrdersService(chain_id, address as string, is_open);
 };
 
 export const getOrderController = (id: string) => {

@@ -1,11 +1,11 @@
 import { Address } from "viem";
 
 export type Execution = {
-  id: number;
+  id: number | null;
   order_id: string;
-  chainId: number;
-  amount_0: number;
-  amount_1: number | undefined;
+  chain_id: number;
+  amount_0: string;
+  amount_1: string | undefined;
   start_time: string;
   address: Address;
   currency_0: Address;

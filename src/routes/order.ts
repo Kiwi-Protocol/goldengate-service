@@ -12,5 +12,5 @@ orderRouter.post("/", makeCallback(createNewOrderController));
 orderRouter.get("/:id", makeCallback(getOrderController));
 orderRouter.get(
   "/user/:chain_id/:address/:is_open",
-  makeCallback(getPendingOrdersController),
+  makeCallback(getAllOrdersController),
 );
