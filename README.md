@@ -1,10 +1,10 @@
-# GoldenGate TWAP Service
+# GoldenWhales TWAP Service
 
 A sophisticated Time-Weighted Average Price (TWAP) trading service that enables automated, strategic order execution across decentralized exchanges. Built for ETHDelhi hackathon, this service provides intelligent order splitting and execution scheduling to minimize market impact and optimize trade execution.
 
 ## 🚀 Overview
 
-GoldenGate TWAP Service breaks down large orders into smaller, time-distributed executions to achieve better average prices while reducing market slippage. The service integrates with 1inch's Limit Order Protocol to execute trades across multiple DEXs.
+GoldenWhales TWAP Service breaks down large orders into smaller, time-distributed executions to achieve better average prices while reducing market slippage. The service integrates with 1inch's Limit Order Protocol to execute trades across multiple DEXs.
 
 ### Key Features
 
@@ -19,7 +19,7 @@ GoldenGate TWAP Service breaks down large orders into smaller, time-distributed 
 
 ```
 ┌─────────────────┐    ┌──────────────────┐    ┌─────────────────┐
-│   Client App    │───▶│  GoldenGate API  │───▶│   1inch SDK     │
+│   Client App    │───▶│  GoldenWhales API  │───▶│   1inch SDK     │
 └─────────────────┘    └──────────────────┘    └─────────────────┘
                               │                          │
                               ▼                          ▼
@@ -56,8 +56,8 @@ GoldenGate TWAP Service breaks down large orders into smaller, time-distributed 
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/your-username/goldengate-service.git
-   cd goldengate-service
+   git clone https://github.com/your-username/goldenWhales-service.git
+   cd goldenWhales-service
    ```
 
 2. **Install dependencies**
