@@ -16,17 +16,17 @@ export const createDbClient = () => {
 const getSplits = (totalAmnt: number, splitCount: number) => {
   const mySet = new Set();
   if (splitCount == 1) {
-    return [];
+    return [0, totalAmnt];
   }
   while (mySet.size <= splitCount) {
-    let current = Math.ceil(Math.random() * totalAmnt);
-    if (current > 0) {
+    let current = BN(totalAmnt).multipliedBy(BN.random(1).multipliedBy(10));
+    if (current.isGreaterThan(0)) {
       mySet.add(current);
     }
   }
   const myArray = Array.from(mySet);
   // @ts-ignore
-  myArray.sort((a, b) => a - b);
+  myArray.sort((a, b) => BN(a).minus(b));
   console.log(myArray);
   return myArray;
 };
@@ -48,9 +48,9 @@ const useExecutionDb = (getDbClient: Function) => {
       }
       const total_splits = getSplits(+order.amount_0, +total_trades);
       const splits = [];
-      for (let i = 1; total_trades.isGreaterThan(i); i++) {
+      for (let i = 1; total_trades.isGreaterThanOrEqualTo(i); i++) {
         // @ts-ignore
-        splits.push(total_splits[i] - total_splits[i - 1]);
+        splits.push(BN(total_splits[i]).minus(total_splits[i - 1]));
       }
       let idx = 0;
       while (
@@ -99,7 +99,6 @@ const useExecutionDb = (getDbClient: Function) => {
           .from("Execution")
           .insert(execution)
           .select();
-        console.log(response);
       }
       return {
         status: 201,
