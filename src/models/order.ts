@@ -7,7 +7,7 @@ export type Order = {
   chain_id: number;
   amount_0: string;
   amount_1: string;
-  batch_size: number | undefined;
+  total_trades: number | undefined;
   interval: number | undefined;
   max_interval: number | undefined;
   address: Address;

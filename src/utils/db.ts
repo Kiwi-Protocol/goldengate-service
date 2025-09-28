@@ -3,7 +3,7 @@ import { Order, Execution, Result } from "../models";
 import { BigNumber as BN } from "bignumber.js";
 const SUPABASE_URL = process.env.SUPABASE_URL ?? "";
 const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY ?? "";
-const BATCH_SIZE = process.env.BATCH_SIZE ?? "";
+const TOTAL_TRADES = process.env.TOTAL_TRADES ?? "";
 
 export const createDbClient = () => {
   return createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
@@ -11,6 +11,23 @@ export const createDbClient = () => {
       persistSession: false,
     },
   });
+};
+
+const getSplits = (totalAmnt: number, splitCount: number) => {
+  const mySet = new Set();
+  if (splitCount == 1) {
+    return [];
+  }
+  while (mySet.size < splitCount) {
+    let current = Math.ceil(Math.random() * 10);
+    if (current > 0) {
+      mySet.add(current);
+    }
+  }
+  const myArray = Array.from(mySet);
+  // @ts-ignore
+  myArray.sort((a, b) => a - b);
+  return myArray;
 };
 
 const useExecutionDb = (getDbClient: Function) => {
@@ -21,7 +38,24 @@ const useExecutionDb = (getDbClient: Function) => {
       const clientInstance = await getDbClient();
       let totalAmount0 = BN(0);
       let totalTime = 0;
-      while (totalAmount0.isLessThan(BN(order.amount_0))) {
+      // if we have a defined batch size
+      let total_trades = BN(0);
+      if (order.total_trades) {
+        total_trades = BN(order.total_trades);
+      } else {
+        total_trades = BN(Math.ceil(Math.random() * +TOTAL_TRADES));
+      }
+      const total_splits = getSplits(+order.amount_0, +total_trades);
+      const splits = [];
+      for (let i = 1; total_trades.isGreaterThan(i); i++) {
+        // @ts-ignore
+        splits.push(total_splits[i] - total_splits[i - 1]);
+      }
+      let idx = 0;
+      while (
+        totalAmount0.isLessThan(BN(order.amount_0)) &&
+        total_trades.isGreaterThan(idx)
+      ) {
         let time_diff = Math.random() * 10;
         if (order.max_interval && order.interval) {
           time_diff =
@@ -34,15 +68,8 @@ const useExecutionDb = (getDbClient: Function) => {
         let amount_0 = BN(0);
         let amount_1 = BN(0);
 
-        // if we have a defined batch size
-        let batch_size = BN(0);
-        if (order.batch_size) {
-          batch_size = BN(order.batch_size);
-        } else {
-          batch_size = BN(Math.ceil(Math.random() * +BATCH_SIZE));
-        }
-
-        amount_0 = BN.min(batch_size, BN(order.amount_0).minus(totalAmount0));
+        amount_0 = splits[idx];
+        idx += 1;
         amount_1 = BN(order.amount_1)
           .multipliedBy(amount_0)
           .dividedBy(BN(order.amount_0));
