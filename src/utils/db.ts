@@ -1,6 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
 import { Order, Execution, Result } from "../models";
-import { BigNumber as BN } from "bignumber.js";
+import { BigNumber as BN, BigNumber } from "bignumber.js";
 const SUPABASE_URL = process.env.SUPABASE_URL ?? "";
 const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY ?? "";
 const TOTAL_TRADES = process.env.TOTAL_TRADES ?? "";
@@ -13,22 +13,41 @@ export const createDbClient = () => {
   });
 };
 
-const getSplits = (totalAmnt: number, splitCount: number) => {
-  const mySet = new Set();
+const getSplits = (totalAmnt: string, splitCount: number): BigNumber[] => {
+  const totalAmntBN = BN(totalAmnt);
+  
   if (splitCount == 1) {
-    return [0, totalAmnt];
+    return [BN(0), totalAmntBN];
   }
-  while (mySet.size <= splitCount) {
-    let current = BN(totalAmnt).multipliedBy(BN.random(1).multipliedBy(10));
-    if (current.isGreaterThan(0)) {
-      mySet.add(current);
+  
+  const splitPoints = new Set<string>();
+  // Always include 0 and totalAmnt as boundaries
+  splitPoints.add('0');
+  splitPoints.add(totalAmnt);
+  
+  // Generate random split points between 0 and totalAmnt
+  while (splitPoints.size < splitCount + 1) {
+    // Generate random BigNumber between 1 and totalAmnt-1
+    // Use Math.random() to get a decimal between 0-1, then multiply by totalAmnt
+    const randomDecimal = Math.random();
+    const randomValue = totalAmntBN.multipliedBy(randomDecimal).integerValue(BN.ROUND_FLOOR);
+    
+    // Ensure it's not 0 or totalAmnt (boundaries already added)
+    if (randomValue.isGreaterThan(0) && randomValue.isLessThan(totalAmntBN)) {
+      splitPoints.add(randomValue.toString());
     }
   }
-  const myArray = Array.from(mySet);
-  // @ts-ignore
-  myArray.sort((a, b) => BN(a).minus(b));
-  console.log(myArray);
-  return myArray;
+  
+  // Convert to BigNumber array and sort
+  const sortedPoints = Array.from(splitPoints)
+    .map(point => BN(point))
+    .sort((a, b) => {
+      if (a.isEqualTo(b)) return 0;
+      return a.isLessThan(b) ? -1 : 1;
+    });
+    
+  console.log("Split points:", sortedPoints.map(p => p.toString()));
+  return sortedPoints;
 };
 
 const useExecutionDb = (getDbClient: Function) => {
@@ -46,11 +65,11 @@ const useExecutionDb = (getDbClient: Function) => {
       } else {
         total_trades = BN(Math.ceil(Math.random() * +TOTAL_TRADES));
       }
-      const total_splits = getSplits(+order.amount_0, +total_trades);
-      const splits = [];
+      const total_splits = getSplits(order.amount_0, +total_trades);
+      const splits: BigNumber[] = [];
       for (let i = 1; total_trades.isGreaterThanOrEqualTo(i); i++) {
-        // @ts-ignore
-        splits.push(BN(total_splits[i]).minus(total_splits[i - 1]));
+        // Calculate the difference between consecutive split points to get the actual split amounts
+        splits.push(total_splits[i].minus(total_splits[i - 1]));
       }
       let idx = 0;
       while (
@@ -69,7 +88,7 @@ const useExecutionDb = (getDbClient: Function) => {
         let amount_0 = BN(0);
         let amount_1 = BN(0);
 
-        amount_0 = BN(splits[idx]);
+        amount_0 = splits[idx];
         idx += 1;
         amount_1 = BN(order.amount_1)
           .multipliedBy(amount_0)
