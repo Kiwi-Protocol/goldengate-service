@@ -69,7 +69,7 @@ const useExecutionDb = (getDbClient: Function) => {
         let amount_0 = BN(0);
         let amount_1 = BN(0);
 
-        amount_0 = splits[idx];
+        amount_0 = BN(splits[idx]);
         idx += 1;
         amount_1 = BN(order.amount_1)
           .multipliedBy(amount_0)
@@ -79,7 +79,7 @@ const useExecutionDb = (getDbClient: Function) => {
 
         const start_time = new Date(order.created_at);
         start_time.setMinutes(start_time.getMinutes() + totalTime);
-
+        console.log(amount_0, amount_1, start_time);
         // @ts-ignore
         const execution: Execution = {
           order_id: order.id,
@@ -231,7 +231,7 @@ const useOrderDb = (getDbClient: Function) => {
       if (execResponse.status != 201) {
         return execResponse;
       }
-      return response;
+      return { status: 201, data: response.data };
     } catch (e: any) {
       return { status: 400, data: e.message };
     }
