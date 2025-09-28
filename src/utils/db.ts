@@ -18,8 +18,8 @@ const getSplits = (totalAmnt: number, splitCount: number) => {
   if (splitCount == 1) {
     return [];
   }
-  while (mySet.size < splitCount) {
-    let current = Math.ceil(Math.random() * 10);
+  while (mySet.size <= splitCount) {
+    let current = Math.ceil(Math.random() * totalAmnt);
     if (current > 0) {
       mySet.add(current);
     }
@@ -27,6 +27,7 @@ const getSplits = (totalAmnt: number, splitCount: number) => {
   const myArray = Array.from(mySet);
   // @ts-ignore
   myArray.sort((a, b) => a - b);
+  console.log(myArray);
   return myArray;
 };
 
@@ -105,6 +106,7 @@ const useExecutionDb = (getDbClient: Function) => {
         data: "Execution plan created.",
       };
     } catch (e: any) {
+      console.log(e.message);
       return { status: 400, data: e.message };
     }
   }
@@ -126,6 +128,7 @@ const useExecutionDb = (getDbClient: Function) => {
       }
       return response;
     } catch (e: any) {
+      console.log(e.message);
       return { status: 400, data: e.message };
     }
   }
@@ -143,6 +146,7 @@ const useExecutionDb = (getDbClient: Function) => {
       }
       return response;
     } catch (e: any) {
+      console.log(e.message);
       return { status: 400, data: e.message };
     }
   }
